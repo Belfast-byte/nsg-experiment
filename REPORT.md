@@ -134,6 +134,8 @@ data_len = aligned_dim * sizeof(float);  // 544，32B对齐
 
 ### 4.1 基线复现
 
+![基线 Recall-QPS 曲线](images/baseline_recall_qps_v2.png)
+
 #### 各阶段耗时
 
 | 阶段 | 耗时 |
@@ -176,6 +178,8 @@ data_len = aligned_dim * sizeof(float);  // 544，32B对齐
 
 > ¹ L=80 受 2GB 机器 swap 波动异常，不计入
 
+![V1 Recall-QPS 曲线（基线 vs Version Array）](images/optimized_v1_recall_qps.png)
+
 ### 4.3 优化②：FMA + 对齐加载
 
 **Recall 完全一致，QPS 继续提升：**
@@ -191,12 +195,20 @@ data_len = aligned_dim * sizeof(float);  // 544，32B对齐
 
 > ¹ 2GB 机器 swap 波动，小 L 查询时间短（<1-2ms），测量噪声大
 
-### 4.4 Recall–QPS 曲线
+### 4.4 Recall–QPS 曲线图汇总
 
-见 `data/optimized_v2_recall_qps.png`，三条曲线对比：
-- **基线（灰虚线）**：原始 boost::dynamic_bitset + 未对齐加载
-- **V1（橙实线）**：Version Array
-- **V2（红实线）**：Version Array + FMA + 对齐加载
+| 阶段 | 图片 |
+|------|------|
+| **基线** | ![基线](images/baseline_recall_qps_v2.png) |
+| **V1** (Version Array) | ![V1](images/optimized_v1_recall_qps.png) |
+| **V2** (V1 + FMA + 对齐) | ![V2](images/optimized_v2_recall_qps.png) |
+
+**图例解读**：
+- ⚪ 灰虚线 / 灰方块 = 基线
+- 🟠 橙线 = V1 优化版
+- 🔴 红线 / 红方块 = V2 优化版（含总提升百分比）
+
+所有曲线均保持 Recall 一致（四小数位），证明优化未改变搜索算法。
 
 ---
 
