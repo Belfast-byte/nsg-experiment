@@ -2,37 +2,37 @@
   {
     "search_L": 20,
     "recall@100": 0.2101,
-    "qps": 12245.4,
-    "time_s": 0.82
+    "qps": 11574.8,
+    "time_s": 0.86
   },
   {
     "search_L": 40,
     "recall@100": 0.41,
-    "qps": 7216.7,
-    "time_s": 1.39
+    "qps": 7014.8,
+    "time_s": 1.43
   },
   {
     "search_L": 80,
     "recall@100": 0.8099,
-    "qps": 3204.7,
-    "time_s": 3.12
+    "qps": 3886.0,
+    "time_s": 2.57
   },
   {
     "search_L": 160,
     "recall@100": 0.9951,
-    "qps": 2241.6,
-    "time_s": 4.46
+    "qps": 2353.2,
+    "time_s": 4.25
   },
   {
     "search_L": 320,
     "recall@100": 0.9994,
-    "qps": 1372.5,
-    "time_s": 7.29
+    "qps": 1324.9,
+    "time_s": 7.55
   },
   {
     "search_L": 640,
     "recall@100": 0.9999,
-    "qps": 757.9,
-    "time_s": 13.19
+    "qps": 596.0,
+    "time_s": 16.78
   }
 ]
