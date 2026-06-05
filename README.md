@@ -1,299 +1,128 @@
-# NSG : Navigating Spread-out Graph For Approximate Nearest Neighbor Search
-## Cooperation
+# NSG 性能优化实验
 
-If you are interested in the research line of nearest neighbor search or application and looking for a cooperation please feel free to contect me via fc731097343@gmail.com
+> **高级数据库课程实验** — 对 NSG（Navigating Spread-out Graph）索引进行单线程查询性能优化
+>
+> 原始仓库: [ZJULearning/nsg](https://github.com/ZJULearning/nsg) | Python 绑定: [twuebker/nsg](https://github.com/twuebker/nsg)
 
-Table of Contents
-=================
-<!--ts-->
-* [Introduction](#introduction)
-* [Performance](#performance)
-     * [Datasets](#datasets)
-     * [Compared Algorithms](#compared-algorithms)
-     * [Results](#results)
-* [Building Instruction](#building-instruction)
-     * [Prerequisites](#prerequisites)
-     * [Compile On Ubuntu/Debian](#compile-on-ubuntudebian)
-     * [(Optional) Docker Usage](#optional-docker-usage)
-* [Usage](#usage)
-     * [Building NSG Index](#building-nsg-index)
-     * [Searching via NSG Index](#searching-via-nsg-index)
-* [Parameters used in Our Paper](#parameters-used-in-our-paper)
-     * [NSG Building](#nsg-building)
-     * [Pre-built kNN Graph and NSG Index](#pre-built-knn-graph-and-nsg-index)
-* [Performance on Taobao's E-commerce Data](#performance-on-taobaos-e-commerce-data)
-* [Reference](#reference)
-* [TODO](#todo)
-* [License](#license)
-<!--te-->
+## 实验简介
 
-## Introduction
+对 NSG 近似最近邻搜索索引进行两项查询性能优化，并通过消融实验量化各优化项的贡献。
 
-NSG is a graph-based approximate nearest neighbor search (ANNS) algorithm. It provides a flexible and efficient solution for the metric-free large-scale ANNS on dense real vectors. It implements the algorithm of our PVLDB paper - [Fast Approximate Nearest Neighbor Search With The Navigating Spread-out Graphs](http://www.vldb.org/pvldb/vol12/p461-fu.pdf).
-NSG has been intergrated into the search engine of Taobao (Alibaba Group) for billion scale ANNS in E-commerce scenario.
+**优化方向 A：单线程查询性能**
 
-## Performance
+| 版本 | 优化内容 | L=160 QPS | 总提升 |
+|------|---------|----------|--------|
+| 基线 | 原始 NSG (Python 绑定) | 1,799 | — |
+| V1 | Version Array 替代 boost::dynamic_bitset | 2,242 | +24.6% |
+| V2 | V1 + AVX2 FMA 融合乘加 | 2,742 | **+52.4%** |
 
-### Datasets
+详细结果见 [REPORT.md](REPORT.md) 和 [EXPERIMENT_LOG.md](EXPERIMENT_LOG.md)。
 
-+ [SIFT1M and GIST1M](http://corpus-texmex.irisa.fr/)
-+ Synthetic datasets: RAND4M and GAUSS5M
-    - RAND4M: 4 million 128-dimension vectors sampled from a uniform distribution of [-1, 1].
-    - GAUSS5M: 5 million 128-dimension vectors sampled from a gaussion ditribution N(0,3).
+## 依赖
 
-### Compared Algorithms
+### 系统依赖 (apt)
 
-#### Graph-based ANNS algorithms:
-
-+ [kGraph](http://www.kgraph.org)
-+ [FANNG](https://pdfs.semanticscholar.org/9ea6/5687a21c869fce7ecf17ca25ffcadbf77d69.pdf) : *FANNG: Fast Approximate Nearest Neighbour Graphs*
-+ [HNSW](https://arxiv.org/abs/1603.09320) ([code](https://github.com/searchivarius/nmslib)) : *Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs*
-+ [DPG](https://arxiv.org/abs/1610.02455) ([code](https://github.com/DBWangGroupUNSW/nns_benchmark)) : *Approximate Nearest Neighbor Search on High Dimensional Data --- Experiments, Analyses, and Improvement (v1.0)*
-+ [EFANNA](https://arxiv.org/abs/1609.07228) ([code](https://github.com/fc731097343/efanna)) : *EFANNA: An Extremely Fast Approximate Nearest Neighbor Search Algorithm Based on kNN Graph*
-+ NSG-naive: a designed based-line, please refer to [our PVLDB paper](http://www.vldb.org/pvldb/vol12/p461-fu.pdf).
-+ NSG: This project, please refer to [our PVLDB paper](http://www.vldb.org/pvldb/vol12/p461-fu.pdf).
-
-#### Other popular ANNS algorithms:
-
-+ [FLANN](http://www.cs.ubc.ca/research/flann/)
-+ [FALCONN](https://github.com/FALCONN-LIB/FALCONN)
-+ [Annoy](https://github.com/spotify/annoy)
-+ [Faiss](https://github.com/facebookresearch/faiss)
-
-### Results
-
-NSG achieved the **best** search performance among all the compared algorithms on all the four datasets.
-Among all the ***graph-based algorithms***, NSG has ***the smallest index size*** and ***the best search performance***.
-
-***NOTE:** The performance was tested without parallelism (search one query at a time and no multi-threads)*
-
-**SIFT1M-100NN-All-Algorithms**
-
-![SIFT1M-100NN-All-Algorithms](figures/siftall.png)
-
-**SIFT1M-100NN-Graphs-Only**
-
-![SIFT1M-100NN-Graphs-Only](figures/sift_graph.png)
-
-**GIST1M-100NN-All-Algorithms**
-
-![GIST1M-100NN-All-Algorithms](figures/gistall.png)
-
-**GIST1M-100NN-Graphs-Only**
-
-![GIST1M-100NN-Graphs-Only](figures/gist_graph.png)
-
-**RAND4M-100NN-All-Algorithms**
-
-![RAND4M-100NN-All-Algorithms](figures/randall.png)
-
-**RAND4M-100NN-Graphs-Only**
-
-![RAND4M-100NN-Graphs-Only](figures/rand_graph.png)
-
-**GAUSS5M-100NN-All-Algorithms**
-
-![GAUSS5M-100NN-All-Algorithms](figures/gaussall.png)
-
-**GAUSS5M-100NN-Graphs-Only**
-
-![GAUSS5M-100NN-Graphs-Only](figures/gauss_graph.png)
-
-**DEEP1B-100NN**
-
-![DEEP1B-100NN](figures/deep1b.png)
-
-## Building Instruction
-
-### Prerequisites
-
-+ GCC 4.9+ with OpenMP
-+ CMake 2.8+
-+ Boost 1.55+
-+ [TCMalloc](http://goog-perftools.sourceforge.net/doc/tcmalloc.html)
-
-**IMPORTANT NOTE: this code uses AVX-256 intructions for fast distance computation, so your machine MUST support AVX-256 intructions, this can be checked using `cat /proc/cpuinfo | grep avx2`.** 
-
-### Compile On Ubuntu/Debian
-
-1. Install Dependencies:
-
-```shell
-$ sudo apt-get install g++ cmake libboost-dev libgoogle-perftools-dev
+```bash
+sudo apt-get install -y cmake g++ libboost-dev libgoogle-perftools-dev libopenblas-dev pybind11-dev
 ```
 
-2. Compile NSG:
+### Python 依赖 (pip)
 
-```shell
-$ git clone https://github.com/ZJULearning/nsg.git
-$ cd nsg/
-$ mkdir build/ && cd build/
-$ cmake -DCMAKE_BUILD_TYPE=Release ..
-$ make -j
+```bash
+pip install numpy faiss-cpu h5py matplotlib
 ```
 
-### (Optional) Docker Usage
+### 硬件要求
 
-1. Build Docker Image
+- CPU 支持 AVX2 (`grep avx2 /proc/cpuinfo`)
+- 建议内存 ≥ 2GB（100K 子集）
 
-```shell
-$ docker build -t nsg .
+## 编译
+
+```bash
+cd nsg-experiment
+pip install --no-build-isolation -e .
 ```
 
-2. Run and log into Docker container
+编译产物：`pynsg/_bindings.cpython-*.so`
 
-```
-$ docker run -it --name nsg nsg bash
-```
+核心修改文件：
+- `src/index_nsg.cpp` — Version Array 搜索 + 32B 对齐内存布局
+- `include/efanna2e/distance.h` — AVX2 FMA 距离计算
 
-> You can modify the Dockerfile under the project as you need.
+## 运行实验
 
-## Usage
+### 基线复现
 
-The main interfaces and classes have its respective test codes under directory `tests/`
+```bash
+# 1. 下载 SIFT1M 数据集
+wget http://ann-benchmarks.com/sift-128-euclidean.hdf5 -O data/sift-128-euclidean.hdf5
 
-### Building NSG Index
+# 2. 生成 kNN 图（首次运行）
+python3 -c "
+import numpy as np, h5py
+from pynsg.graph_creator import create_graph_file
+with h5py.File('data/sift-128-euclidean.hdf5','r') as f:
+    train = f['train'][:100000]
+create_graph_file('data/sift_100k_knn.graph', train, k=100, hnsw_M=16)
+"
 
-To use NSG for ANNS, an NSG index must be built first. Here are the instructions for building NSG.
-
-#### Step 1. Build kNN Graph
-
-Firstly, we need to prepare a kNN graph.
-
-We suggest you use our [efanna\_graph](https://github.com/ZJULearning/efanna\_graph) to build this kNN graph. But you can also use any alternatives you like, such as KGraph or faiss.
-
-#### Step 2. Convert kNN Graph to NSG
-
-Secondly, we will convert the kNN graph to our NSG index.
-
-You can use our demo code to achieve this converstion as follows:
-```shell
-$ cd build/tests/
-$ ./test_nsg_index DATA_PATH KNNG_PATH L R C NSG_PATH
+# 3. 运行基线评测
+python3 baseline_100k_correct.py
 ```
 
-+ `DATA_PATH` is the path of the base data in `fvecs` format.
-+ `KNNG_PATH` is the path of the pre-built kNN graph in *Step 1.*.
-+ `L` controls the quality of the NSG, the larger the better.
-+ `R` controls the index size of the graph, the best R is related to the intrinsic dimension of the dataset.
-+ `C` controls the maximum candidate pool size during NSG contruction.
-+ `NSG_PATH` is the path of the generated NSG index.
+### 优化版评测
 
-### Searching via NSG Index
-
-Here are the instructions of how to use NSG index for searching.
-
-You can use our demo code to perform kNN searching as follows:
-```shell
-$ cd build/tests/
-$ ./test_nsg_optimized_search DATA_PATH QUERY_PATH NSG_PATH SEARCH_L SEARCH_K RESULT_PATH
+```bash
+python3 test_optimized.py
 ```
 
-+ `DATA_PATH` is the path of the base data in `fvecs` format.
-+ `QUERY_PATH` is the path of the query data in `fvecs` format.
-+ `NSG_PATH` is the path of the pre-built NSG index in previous section.
-+ `SEARCH_L` controls the quality of the search results, the larger the better but slower. The `SEARCH_L` cannot be samller than the `SEARCH_K`
-+ `SEARCH_K` controls the number of result neighbors we want to query.
-+ `RESULT_PATH` is the query results in `ivecs` format.
+输出 `data/optimized_v1_results.json`，包含各 search_L 的 Recall@100 与 QPS。
 
-There is another program in `tests/` folder named `test_nsg_search`. The parameters of `test_nsg_search` are exactly same as `test_nsg_optimized_search`. `test_nsg_search` is slower than `test_nsg_optimized_search` but requires less memory. In the situations memory consumption is extremely important, one can use `test_nsg_search` instead of `test_nsg_optimized_search`.
+### 参数说明
 
-***NOTE:** Only data-type int32 and float32 are supported for now.*
+| 脚本 | 参数 | 说明 |
+|------|------|------|
+| `baseline_100k_correct.py` | — | 基线复现，100K 子集，子集内暴力 ground truth |
+| `test_optimized.py` | — | 优化版评测，对比基线输出提升百分比 |
 
-> HINT: The `data_align()` function we provided is essential for the correctness of our procedure, because we use SIMD instructions for acceleration of numerical computing such as AVX and SSE2.
-You should use it to ensure your data elements (feature) is aligned with 8 or 16 int or float.
-For example, if your features are of dimension 70, then it should be extend to dimension 72. And the last 2 dimension should be filled with 0 to ensure the correctness of the distance computing. And this is what `data_align()` does.
+默认构图参数：L=40, R=50, C=500, 单线程
 
-> HINT: Please refer [here](http://yael.gforge.inria.fr/file_format.html) for the desciption of `fvecs/ivecs` format.
+## 项目结构
 
-## Parameters used in Our Paper
-
-### NSG Building
-
-We use the following parameters to get the index in Fig. 6 of [our paper](https://arxiv.org/abs/1707.00143).
-
-We use [efanna_graph](https://github.com/ZJULearning/efanna_graph) to build the kNN graph.
-
-#### Step 1. Build kNN Graph
-
-+ Tool: [efanna_graph](https://github.com/ZJULearning/efanna_graph)
-+ Parameters:
-
-| Dataset |  K  |  L  | iter |  S |  R  |
-|:-------:|:---:|:---:|:----:|:--:|:---:|
-|  SIFT1M | 200 | 200 |  10  | 10 | 100 |
-|  GIST1M | 400 | 400 |  12  | 15 | 100 |
-
-+ Commands:
-```shell
-$ efanna_graph/tests/test_nndescent sift.fvecs sift_200nn.graph 200 200 10 10 100    # SIFT1M
-$ efanna_graph/tests/test_nndescent gist.fvecs gist_400nn.graph 400 400 12 15 100    # GIST1M
+```
+nsg-experiment/
+├── src/index_nsg.cpp          # NSG 核心实现（已修改 SearchWithOptGraph + OptimizeGraph）
+├── include/efanna2e/
+│   ├── distance.h             # AVX2 FMA 距离计算（已修改）
+│   └── neighbor.h             # 数据结构 + InsertIntoPool
+├── pynsg/                     # Python 绑定
+│   ├── bindings.cpp
+│   └── graph_creator.py
+├── data/                      # 数据集 + 结果 JSON
+├── images/                    # Recall-QPS 曲线图
+├── baseline_100k_correct.py   # 基线评测脚本
+├── test_optimized.py          # 优化版评测脚本
+├── REPORT.md                  # 完整实验报告
+├── EXPERIMENT_LOG.md          # 实验日志（增量记录）
+└── README.md                  # 本文件
 ```
 
-#### Step 2. Convert kNN Graph to NSG
+## 复现说明
 
-+ Parameters:
+所有实验在相同环境下进行：
 
-| Dataset |  L |  R |  C  |
-|:-------:|:--:|:--:|:---:|
-|  SIFT1M | 40 | 50 | 500 |
-|  GIST1M | 60 | 70 | 500 |
+| 项目 | 值 |
+|------|-----|
+| CPU | DO-Premium-Intel, 1核1线程 |
+| 内存 | 2GB |
+| 系统 | Ubuntu 24.04, Linux 6.8.0 |
+| 编译器 | g++ 13.3.0, -O3 -march=native -fopenmp |
+| 数据集 | SIFT1M 前 100K 向量 |
+| Ground Truth | faiss IndexFlatL2 子集内暴力计算 |
 
-+ Commands:
-```shell
-$ nsg/build/tests/test_nsg_index sift.fvecs sift_200nn.graph 40 50 500 sift.nsg        # SIFT1M
-$ nsg/build/tests/test_nsg_index gist.fvecs gist_400nn.graph 60 70 500 gist.nsg        # GIST1M
-```
-
-### Pre-built kNN Graph and NSG Index
-
-Here we also provide our pre-built kNN graph and NSG index files used in our papar's experiments.
-
-- kNN Graph:
-    + SIFT1M - [sift_200nn.graph](http://downloads.zjulearning.org.cn/nsg/sift_200nn.graph)
-    + GIST1M - [gist_400nn.graph](http://downloads.zjulearning.org.cn/nsg/gist_400nn.graph)
-- NSG Index:
-    + SIFT1M - [sift.nsg](http://downloads.zjulearning.org.cn/nsg/sift.nsg)
-    + GIST1M - [gist.nsg](http://downloads.zjulearning.org.cn/nsg/gist.nsg)
-
-## Performance on Taobao's E-commerce Data
-
-**Environments:**
-+ **CPU**: Xeon E5-2630.
-
-**Single Thread Test:**
-+ **Dataset**: 10,000,000 128-dimension vectors.
-+ **Latency**: 1ms (average) on 10,000 query.
-
-**Distributed Search Test:**
-+ **Dataset**: 45,000,000 128-dimension vectors.
-Distribute:  randomly divide the dataset into 12 subsets and build 12 NSGs. Search in parallel and merge results.
-+ **Latency**: 1ms (average) on 10,000 query.
-
-## Reference
-
-Reference to cite when you use NSG in a research paper:
-```
-@article{FuNSG17,
-  author    = {Cong Fu and Chao Xiang and Changxu Wang and Deng Cai},
-  title     = {Fast Approximate Nearest Neighbor Search With The Navigating Spreading-out Graphs},
-  journal   = {{PVLDB}},
-  volume    = {12},
-  number    = {5},
-  pages     = {461 - 474},
-  year      = {2019},
-  url       = {http://www.vldb.org/pvldb/vol12/p461-fu.pdf},
-  doi       = {10.14778/3303753.3303754}
-}
-```
-
-## TODO
-
-- [x] Add Docker support
-- [ ] Improve compatibility of SIMD-related codes
-- [x] Python wrapper
-- [ ] Add travis CI
+评测方法：扫描 search_L ∈ {20,40,80,160,320,640}，绘制 Recall–QPS 曲线，在相同 Recall 处比较 QPS。
 
 ## License
 
-NSG is MIT-licensed.
+基于 NSG (MIT) 修改，本实验代码同样 MIT 授权。
