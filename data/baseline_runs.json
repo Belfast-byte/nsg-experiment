@@ -1,0 +1,119 @@
+{
+  "runs": [
+    {
+      "run": 1,
+      "subset": 100000,
+      "dim": 128,
+      "query_count": 10000,
+      "load_time_s": 0.09,
+      "peak_mem_load_mb": 99.6,
+      "data_mem_mb": 53.7,
+      "knn_size_mb": 38.5,
+      "build_time_s": 95.87,
+      "peak_mem_build_mb": 54.5,
+      "opt_time_s": 0.32,
+      "peak_mem_opt_mb": 79.4,
+      "peak_mem_overall_mb": 334.7,
+      "search_total_s": 74.97,
+      "results": [
+        {
+          "L": 20,
+          "recall": 0.2101,
+          "qps": 6635.1,
+          "time_s": 1.51
+        },
+        {
+          "L": 40,
+          "recall": 0.41,
+          "qps": 4684.0,
+          "time_s": 2.13
+        },
+        {
+          "L": 80,
+          "recall": 0.8099,
+          "qps": 2843.8,
+          "time_s": 3.52
+        },
+        {
+          "L": 160,
+          "recall": 0.9951,
+          "qps": 1544.8,
+          "time_s": 6.47
+        },
+        {
+          "L": 320,
+          "recall": 0.9994,
+          "qps": 636.2,
+          "time_s": 15.72
+        },
+        {
+          "L": 640,
+          "recall": 0.9999,
+          "qps": 219.2,
+          "time_s": 45.62
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "subset": 100000,
+      "dim": 128,
+      "query_count": 10000,
+      "load_time_s": 0.29,
+      "peak_mem_load_mb": 0.0,
+      "data_mem_mb": 53.7,
+      "knn_size_mb": 38.5,
+      "build_time_s": 95.03,
+      "peak_mem_build_mb": 0.0,
+      "opt_time_s": 0.16,
+      "peak_mem_opt_mb": 39.2,
+      "peak_mem_overall_mb": 387.4,
+      "search_total_s": 39.36,
+      "results": [
+        {
+          "L": 20,
+          "recall": 0.2101,
+          "qps": 8817.8,
+          "time_s": 1.13
+        },
+        {
+          "L": 40,
+          "recall": 0.41,
+          "qps": 5471.7,
+          "time_s": 1.83
+        },
+        {
+          "L": 80,
+          "recall": 0.8099,
+          "qps": 3402.3,
+          "time_s": 2.94
+        },
+        {
+          "L": 160,
+          "recall": 0.9951,
+          "qps": 2052.5,
+          "time_s": 4.87
+        },
+        {
+          "L": 320,
+          "recall": 0.9994,
+          "qps": 909.5,
+          "time_s": 11.0
+        },
+        {
+          "L": 640,
+          "recall": 0.9999,
+          "qps": 568.6,
+          "time_s": 17.59
+        }
+      ]
+    }
+  ],
+  "average": {
+    "load_time_s": 0.19,
+    "build_time_s": 95.45,
+    "opt_time_s": 0.24,
+    "search_total_s": 57.16,
+    "peak_mem_overall_mb": 361.05
+  }
+}

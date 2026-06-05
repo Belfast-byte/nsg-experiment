@@ -1,0 +1,42 @@
+{
+  "subset": 100000,
+  "dim": 128,
+  "num_queries": 10000,
+  "load_time_s": 0.08060264587402344,
+  "knn_size_mb": 38.5,
+  "build_time_s": 53.7,
+  "opt_time_s": 0.1,
+  "search_time_s": 26.8,
+  "results": [
+    {
+      "search_L": 20,
+      "recall@100": 0.0945,
+      "qps": 12816.5
+    },
+    {
+      "search_L": 40,
+      "recall@100": 0.1009,
+      "qps": 7846.7
+    },
+    {
+      "search_L": 80,
+      "recall@100": 0.1023,
+      "qps": 4856.4
+    },
+    {
+      "search_L": 160,
+      "recall@100": 0.1026,
+      "qps": 2802.6
+    },
+    {
+      "search_L": 320,
+      "recall@100": 0.1026,
+      "qps": 1505.0
+    },
+    {
+      "search_L": 640,
+      "recall@100": 0.1026,
+      "qps": 801.9
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+# 数据集文件（太大，不提交）
+data/*.fvecs
+data/*.hdf5
+data/*.graph
+data/*.nsg
+data/*.tar.gz
+
+# Python
+__pycache__/
+*.pyc
+*.so
+
+# 编译产物
+build/
+*.o
+
+# 图片缓存
+data/*.png

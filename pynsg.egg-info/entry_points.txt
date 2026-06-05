@@ -1,0 +1,2 @@
+[console_scripts]
+nsg-build-knn = pynsg.graph_creator:main

@@ -1,0 +1,4 @@
+numpy>=1.16.0
+
+[knn]
+faiss-cpu>=1.12.0
